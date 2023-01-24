@@ -1,71 +1,56 @@
-LOCAL_PATH:= $(call my-dir)
-HOME_DIR:= $(LOCAL_PATH)/..
+DSP_PATH := $(call my-dir)
+LOCAL_PATH := $(DSP_PATH)
+
+COMPILE_USER := $(BUILD_USERNAME)
+$(info $(COMPILE_USER))
+
+include $(LOCAL_PATH)/../DSP_Common.mk
 
 include $(CLEAR_VARS)
-LOCAL_SRC_FILES := 	\
-	dspmain.cpp \
 
-LOCAL_SHARED_LIBRARIES:= \
-    liblog \
-    libui \
-	libgui \
-    libbinder \
-    libutils \
-    libcutils \
-    libcamera_client \
-    libhardware \
-    libandroid \
-    libandroidfw \
-	libstagefright \
-	libstagefright_foundation \
-	libmedia \
-	libEGL \
-	libGLESv2 \
+#get all sub-dir
+DSP_SRC_PATH := $(call all-c-files-under)
+DSP_SRC_PATH += $(call all-cpp-files-under)
+
+LOCAL_SRC_FILES         := $(DSP_SRC_PATH)
+
+LOCAL_SHARED_LIBRARIES  := $(DSP_ANDROID_BASE_SHARED_LIBS) $(DSP_SERVER_NDK_SHARED_LIBS) $(DSP_GRALLOC_LIB4) hardware.hik.dspservice@2.0 libaudiohal
+LOCAL_HEADER_LIBRARIES  := libaudiohal_headers
+LOCAL_C_INCLUDES        := $(DSP_INC_MODULES)
+LOCAL_CFLAGS            := -Werror -Wall -g
+
+BUILD_DATE := $(shell date +"%Y-%m-%d")
+BUILD_TIME := $(shell date +"%H:%M:%S")
 
 
-LOCAL_C_INCLUDES := \
-	Audio \
-	Tools \
-	frameworks/av/include \
-	frameworks/av/media/libstagefright \
-	frameworks/av/media/libstagefright/include \
-	frameworks/av/media/libstagefright/foundation/include \
-	frameworks/av/media/libstagefright/foundation/include/media/stagefright/foundation \
-	frameworks/av/media/libmedia/include \
-	frameworks/av/media/libmedia/include/media\
-	frameworks/av/media/libaudioclient/include/media \
-	frameworks/av/media/libmediametrics \
-	frameworks/native/include/media/openmax \
-	frameworks/base/native/include \
-	frameworks/base/core/jni/android \
-	frameworks/base/include/ui \
-	frameworks/native/include \
-	hardware/rockchip/librkvpu \
-	system/core/include \
-	bionic \
+ifeq ($(strip $(DSP_PLAT_BITS)), 64)
+LOCAL_CFLAGS            +=  -DBANDWIDTH_64BIT
+LOCAL_CFLAGS            +=  -D_ANDROID64
+endif
+
+LOCAL_CFLAGS            += $(DSP_CFLAGS)
 
 
-# -g  -rdynamic  -funwind-tables
-#用于在SDK\out\target\product\rk3288\obj\SHARED_LIBRARIES\libdsp_intermediates\PACKED
-#目录下生成待调试信息的动态库
-LOCAL_CFLAGS += -Wall $(SAL_FLAGS) $(SVN_FLAGS) -DCONFIG_MULTI_CAMERAS_SUPPORT -DCONFIG_PLATFORM_ROCKCHIP 
-LOCAL_32_BIT_ONLY := true
-LOCAL_CLANG := true
-LOCAL_ALLOW_UNDEFINED_SYMBOLS := true
-LOCAL_MODULE_TAGS := optional
+LOCAL_STATIC_LIBRARIES  := \
+    $(DSP_STATIC_LIBS)     \
 
-#指定生成的动态库名称
-LOCAL_MODULE:= dspserver
 
-#指定动态库生成路径
-#LOCAL_MODULE_PATH := ~/nfs/android8
+LOCAL_MULTILIB          := $(DSP_PLAT_BITS)
+LOCAL_LDFLAGS           := $(DSP_SERVER_LDFLAGS)
+LOCAL_MODULE            := dspserver
+LOCAL_MODULE_TAGS       := optional
+#LOCAL_STRIP_MODULE     := false
 
-TARGET_PRELINK_MODULE := false
+ifeq ($(strip $(BUILD_DEBUG)), 1)
+$(warning value of ###################################################### $(LOCAL_MODULE))
+$(warning valus of               LOCAL_PATH: $(LOCAL_PATH))
+$(warning valus of          LOCAL_SRC_FILES: $(LOCAL_SRC_FILES))
+$(warning valus of   LOCAL_SHARED_LIBRARIES: $(LOCAL_SHARED_LIBRARIES))
+$(warning valus of   LOCAL_STATIC_LIBRARIES: $(LOCAL_STATIC_LIBRARIES))
+$(warning value of            LOCAL_LDFLAGS: $(LOCAL_LDFLAGS))
+$(warning value of             LOCAL_CFLAGS: $(LOCAL_CFLAGS))
+$(warning value of           LOCAL_CPPFLAGS: $(LOCAL_CPPFLAGS))
+$(warning value of #--#-------------------------------------------------- )
+endif
 
 include $(BUILD_EXECUTABLE)
-
-$(info $(LOCAL_C_INCLUDES))
-$(info $(LOCAL_LDFLAGS))
-$(info $(SAL_MODULE_NAME))
-$(info $(LOCAL_CFLAGS))
-$(info $(LOCAL_PATH))

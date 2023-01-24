@@ -21,15 +21,14 @@ DSP_RUN_LIBS_DIR := /hik/dsp/lib/
 
 #include
 DSP_INC      :=                         \
-
+                $(DSP_TOP)/include             \
+                $(DSP_TOP)/include/boundscheck_inc  
 
 DSP_APP_INC  :=                         \
-
 
 LOCAL_PROPRIETARY_MODULE := false
 
 LOCAL_HEADER_LIBRARIES += \
-
 
 DSP_PLAT_INC :=                          \
                 $(DSP_PLAT_TOP)                      \
@@ -38,7 +37,6 @@ DSP_PLAT_INC :=                          \
 DSP_COM_INC :=                                   \
                 $(DSP_COM_TOP)                               \
                 $(DSP_COM_TOP)/sal                           \
-
 
 DSP_FRM_INC :=                                   \
                 $(DSP_FRM_TOP)                               \
@@ -202,7 +200,7 @@ ifeq ($(strip $(DSP_BUILD_USE_ASAN)), 1)
 endif
 
 
-DSP_DEMO_LDFLAGS   += $(DSP_LIBS_DIR)$(DSP_PLAT_BITS)/log4j_lib/libbsp_log4j.a
+DSP_SERVER_LDFLAGS   += $(DSP_LIBS_DIR)$(DSP_PLAT_BITS)/log4j_lib/libbsp_log4j.a
 
 
 DSP_BOUNDSCHECK_LDFLAGS  := $(DSP_LIBS_DIR)$(DSP_PLAT_BITS)/boundscheck_lib/libboundscheck.so
